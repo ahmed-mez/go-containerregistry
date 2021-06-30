@@ -16,6 +16,7 @@ package crane
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/google/go-containerregistry/pkg/logs"
 	"github.com/google/go-containerregistry/pkg/name"
@@ -92,6 +93,13 @@ func indexAddendumFromRemote(desc *remote.Descriptor, override *v1.Descriptor) (
 				i, err := idx.Image(imDesc.Digest)
 				if err != nil {
 					return nil, err
+				}
+
+				iWithTime, err := mutate.CreatedAt(i, v1.Time{Time: time.Now()})
+				if err != nil {
+					logs.Warn.Printf("Couldn't set Creation Time: %v", err)
+				} else {
+					i = iWithTime
 				}
 
 				adds = append(adds, mutate.IndexAddendum{
